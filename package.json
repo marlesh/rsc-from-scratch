@@ -1,0 +1,18 @@
+{
+    "type": "module",
+    "license": "MIT",
+    "engines": {
+      "node": ">=18.0.0"
+    },
+    "dependencies": {
+      "escape-html": "^1.0.3",
+      "nodemon": "^2.0.22"
+    },
+    "scripts": {
+      "start": "nodemon server.js"
+    },
+    "devDependencies": {
+      "@types/node": "^17.0.21"
+    }
+  }
+  
