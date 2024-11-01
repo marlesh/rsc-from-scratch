@@ -1,34 +1,53 @@
 import escapeHtml from "escape-html";
 
 export function renderJSXToHTML(jsx) {
-  //NOTE!!!!!
-  //when it says to HTML, it doesn't mean HTML that the browser can parse and understand but rather template strings
   if (typeof jsx === "string" || typeof jsx === "number") {
-    // This is a string. Escape it and put it into HTML directly.
     return escapeHtml(jsx);
-  } else if (jsx == null || typeof jsx === "boolean") {
-    // This is an empty node. Don't emit anything in HTML for it.
+  }
+  
+  if (jsx == null || typeof jsx === "boolean") {
     return "";
-  } else if (Array.isArray(jsx)) {
-    // This is an array of nodes. Render each into HTML and concatenate.
+  }
+  
+  if (Array.isArray(jsx)) {
     return jsx.map((child) => renderJSXToHTML(child)).join("");
-  } else if (typeof jsx === "object") {
-    // Check if this object is a React JSX element (e.g. <div />).
+  } 
+  
+  if (typeof jsx === "object") {
     if (jsx.$$typeof === Symbol.for("react.element")) {
-      // Turn it into an an HTML tag.
-      let html = "<" + jsx.type;
-      for (const propName in jsx.props) {
-        if (jsx.props.hasOwnProperty(propName) && propName !== "children") {
-          html += " ";
-          html += propName;
-          html += "=";
-          html += escapeHtml(jsx.props[propName]);
-        }
+      switch(typeof jsx.type) {
+        case 'string':  
+          return handleNativeHtmlTags(jsx);
+        case 'function':  
+          return handleJsxTags(jsx);
+        default: throw new Error("Not implemented.")
       }
-      html += ">";
-      html += renderJSXToHTML(jsx.props.children);
-      html += "</" + jsx.type + ">";
-      return html;
-    } else throw new Error("Cannot render an object.");
-  } else throw new Error("Not implemented.");
+    } 
+    throw new Error("Cannot render an object.");
+  } 
+   
+  throw new Error("Not implemented.");
+}
+
+function handleNativeHtmlTags (jsx) {
+  let html = "<" + jsx.type;
+  for (const propName in jsx.props) {
+    if (jsx.props.hasOwnProperty(propName) && propName !== "children") {
+      html += " ";
+      html += propName;
+      html += "=";
+      html += escapeHtml(jsx.props[propName]);
+    }
+  }
+  html += ">";
+  html += renderJSXToHTML(jsx.props.children);
+  html += "</" + jsx.type + ">";
+  return html
+}
+
+function handleJsxTags (jsx) {
+  const Component = jsx.type;
+  const props = jsx.props;
+  const returnedJsx = Component(props);
+  return renderJSXToHTML(returnedJsx);
 }

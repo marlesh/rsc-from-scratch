@@ -1,10 +1,11 @@
 import { createServer } from "http";
 import { readFile } from "fs/promises";
 import { renderJSXToHTML } from "./utils/renderJSX.js";
+import App from "./views/app.js";
 
 createServer(async (_, res) => {
   const author = "Jae Doe";
-  const postContent = await readFile("./posts/sample.txt", "utf8");
+  const postContent = await readFile("./assets/sample.txt", "utf8");
   sendHTML(
     res,
     <html>
@@ -12,19 +13,7 @@ createServer(async (_, res) => {
         <title>My blog</title>
       </head>
       <body>
-        <nav>
-          <a href="/">Home</a>
-          <hr />
-        </nav>
-        <article>{postContent}</article>
-        <footer>
-          <hr />
-          <p>
-            <i>
-              (c) {author} {new Date().getFullYear()}
-            </i>
-          </p>
-        </footer>
+        <App postContent={postContent} author={author} />
       </body>
     </html>
   );
